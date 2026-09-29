@@ -1,0 +1,11 @@
+{% extends 'social/base.html' %}
+{% block title %}{{ title }} | Commonplace{% endblock %}
+{% block content %}
+<section class="narrow-page">
+    <a class="back-link" href="{% url 'profile' profile_user.username %}">← Back to @{{ profile_user.username }}</a>
+    <div class="page-heading"><p class="eyebrow">COMMUNITY</p><h1>{{ title }}</h1></div>
+    <div class="connection-list">
+        {% for connection in users %}<a class="connection-row" href="{% url 'profile' connection.username %}"><span class="avatar">{{ connection.username|first|upper }}</span><span><strong>@{{ connection.username }}</strong><small>{{ connection.get_full_name|default:'Commonplace member' }}</small></span><b>→</b></a>{% empty %}<div class="empty-state"><h2>No one here yet</h2><p>This list will grow as people connect.</p></div>{% endfor %}
+    </div>
+</section>
+{% endblock %}

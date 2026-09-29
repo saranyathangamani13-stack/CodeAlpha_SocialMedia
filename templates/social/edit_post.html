@@ -1,0 +1,9 @@
+{% extends 'social/base.html' %}
+{% block title %}Edit post | Commonplace{% endblock %}
+{% block content %}
+<section class="narrow-page">
+    <a class="back-link" href="{% url 'post_detail' post.pk %}">← Back to post</a>
+    <div class="page-heading"><p class="eyebrow">YOUR VOICE</p><h1>Edit post</h1><p class="lede">Make a change before you share it again.</p></div>
+    <div class="form-panel form-panel-wide"><form method="post" class="stack-form">{% csrf_token %}<label for="{{ form.content.id_for_label }}">Post content</label>{{ form.content }}{% for error in form.content.errors %}<p class="field-error">{{ error }}</p>{% endfor %}<div class="form-actions"><button class="button button-primary" type="submit">Save changes</button></div></form></div>
+</section>
+{% endblock %}

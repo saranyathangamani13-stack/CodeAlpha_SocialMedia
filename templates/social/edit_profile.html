@@ -1,0 +1,15 @@
+{% extends 'social/base.html' %}
+{% block title %}Edit profile | Commonplace{% endblock %}
+{% block content %}
+<section class="narrow-page">
+    <a class="back-link" href="{% url 'profile' user.username %}">← Back to profile</a>
+    <div class="page-heading"><p class="eyebrow">YOUR SPACE</p><h1>Edit profile</h1><p class="lede">Let people know a little about you.</p></div>
+    <div class="form-panel form-panel-wide"><form method="post" class="stack-form">
+        {% csrf_token %}
+        <h2>Personal details</h2>
+        {% for field in user_form %}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}{% endfor %}
+        {% for field in profile_form %}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}{% endfor %}
+        <div class="form-actions"><button class="button button-primary" type="submit">Save changes</button></div>
+    </form></div>
+</section>
+{% endblock %}

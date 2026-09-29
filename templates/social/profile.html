@@ -1,0 +1,36 @@
+{% extends 'social/base.html' %}
+{% block title %}@{{ profile_user.username }} | Commonplace{% endblock %}
+{% block content %}
+<section class="profile-header">
+    <div class="profile-avatar">{{ profile_user.username|first|upper }}</div>
+    <div class="profile-details">
+        <p class="eyebrow">COMMUNITY MEMBER</p><h1>@{{ profile_user.username }}</h1>
+        <p class="profile-name">{{ profile_user.get_full_name|default:' ' }}</p>
+        {% if profile.bio %}<p class="profile-bio">{{ profile.bio|linebreaksbr }}</p>{% else %}<p class="profile-bio muted">No bio added yet.</p>{% endif %}
+        {% if profile.location %}<p class="profile-location">⌖ {{ profile.location }}</p>{% endif %}
+        <div class="profile-stats">
+            <a href="{% url 'connections' profile_user.username 'followers' %}"><strong>{{ follower_count }}</strong> followers</a>
+            <a href="{% url 'connections' profile_user.username 'following' %}"><strong>{{ following_count }}</strong> following</a>
+            <span><strong>{{ posts|length }}</strong> posts</span>
+        </div>
+    </div>
+    <div class="profile-controls">
+        {% if user == profile_user %}<a class="button button-outline" href="{% url 'edit_profile' %}">Edit profile</a>
+        {% elif user.is_authenticated %}<form method="post" action="{% url 'toggle_follow' profile_user.username %}">{% csrf_token %}<button class="button {% if is_following %}button-outline{% else %}button-primary{% endif %}" type="submit">{% if is_following %}Following · Unfollow{% else %}Follow{% endif %}</button></form>{% else %}<a class="button button-primary" href="{% url 'login' %}">Log in to follow</a>{% endif %}
+    </div>
+</section>
+<div class="section-label"><h2>Posts by @{{ profile_user.username }}</h2><span>{{ posts|length }} total</span></div>
+<section class="profile-posts">
+    {% for post in posts %}
+        <article class="post-card">
+            <div class="post-head"><div class="avatar">{{ profile_user.username|first|upper }}</div><div class="post-byline"><a class="author-link" href="{% url 'profile' profile_user.username %}">@{{ profile_user.username }}</a><time>{{ post.created_at|date:'M j, Y · g:i a' }}</time></div></div>
+            <div class="post-content"><p>{{ post.content|linebreaksbr }}</p></div>
+            <div class="post-actions">
+                {% if user.is_authenticated %}<form method="post" action="{% url 'toggle_like' post.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'profile' profile_user.username %}"><button class="text-action {% if user.id in liked_post_ids %}is-liked{% endif %}" type="submit">{% if user.id in liked_post_ids %}♥ Liked{% else %}♡ Like{% endif %} <span>{{ post.likes.count }}</span></button></form>{% else %}<span class="text-action">♡ Likes <span>{{ post.likes.count }}</span></span>{% endif %}
+                <a class="text-action" href="{% url 'post_detail' post.pk %}">Comments <span>{{ post.comments.count }}</span></a>
+                {% if user == profile_user %}<a class="quiet-link" href="{% url 'edit_post' post.pk %}">Edit post</a>{% endif %}
+            </div>
+        </article>
+    {% empty %}<div class="empty-state"><span class="empty-symbol">✳</span><h2>No posts so far</h2><p>When {{ profile_user.username }} shares a post, it will appear here.</p></div>{% endfor %}
+</section>
+{% endblock %}

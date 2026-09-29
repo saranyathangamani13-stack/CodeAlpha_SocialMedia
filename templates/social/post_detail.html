@@ -1,0 +1,19 @@
+{% extends 'social/base.html' %}
+{% block title %}Post by @{{ post.author.username }} | Commonplace{% endblock %}
+{% block content %}
+<section class="narrow-page">
+    <a class="back-link" href="{% url 'home' %}">← Back to feed</a>
+    <article class="post-card detail-card">
+        <div class="post-head"><a class="avatar" href="{% url 'profile' post.author.username %}">{{ post.author.username|first|upper }}</a><div class="post-byline"><a class="author-link" href="{% url 'profile' post.author.username %}">@{{ post.author.username }}</a><time>{{ post.created_at|date:'M j, Y · g:i a' }}</time></div>
+            {% if user == post.author %}<a class="quiet-link post-manage" href="{% url 'edit_post' post.pk %}">Edit</a>{% endif %}</div>
+        <div class="post-content post-content-detail"><p>{{ post.content|linebreaksbr }}</p></div>
+        <div class="post-actions">
+            {% if user.is_authenticated %}<form method="post" action="{% url 'toggle_like' post.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'post_detail' post.pk %}"><button class="text-action {% if liked %}is-liked{% endif %}" type="submit">{% if liked %}♥ Liked{% else %}♡ Like{% endif %} <span>{{ post.likes.count }}</span></button></form>{% else %}<span class="text-action">♡ Likes <span>{{ post.likes.count }}</span></span>{% endif %}
+        </div>
+        <section class="detail-comments"><div class="section-label"><h2>Conversation</h2><span>{{ post.comments.count }}</span></div>
+            {% for comment in post.comments.all %}<div class="comment-row"><p><a href="{% url 'profile' comment.author.username %}">@{{ comment.author.username }}</a> {{ comment.content }}<time>{{ comment.created_at|date:'M j · g:i a' }}</time></p>{% if user == comment.author %}<form method="post" action="{% url 'delete_comment' comment.pk %}" class="inline-form">{% csrf_token %}<input type="hidden" name="return_to_detail" value="1"><button class="icon-text" type="submit" aria-label="Delete your comment">×</button></form>{% endif %}</div>{% empty %}<p class="quiet-note">No replies yet. Add the first one.</p>{% endfor %}
+        </section>
+        {% if user.is_authenticated %}<form method="post" action="{% url 'create_comment' post.pk %}" class="comment-form">{% csrf_token %}<input type="hidden" name="return_to_detail" value="1">{{ comment_form.content }}<button class="button button-small" type="submit">Reply</button></form>{% else %}<p class="quiet-note sign-in-note"><a href="{% url 'login' %}">Log in</a> to join the conversation.</p>{% endif %}
+    </article>
+</section>
+{% endblock %}
